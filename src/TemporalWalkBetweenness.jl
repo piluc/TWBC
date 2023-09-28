@@ -75,7 +75,7 @@ function find_r(earr, edepv, rv, a, betav)
     end
 end
 
-function print_state(e, i, a, l, r, lc, Iv, lvrv, best, sigma, cost, verbose)
+function print_state(e, i, a, l, r, lc, Iv, lvrv, best, sigma, cost, parent, verbose)
     if (verbose)
         logging("e: " * string(e), true, false)
         logging("i: " * string(i), true, false)
@@ -87,24 +87,28 @@ function print_state(e, i, a, l, r, lc, Iv, lvrv, best, sigma, cost, verbose)
         logging("(l_v,r_v): " * string(lvrv), true, false)
         logging("B: " * string(best), true, false)
         logging("sigma: " * string(sigma), true, false)
-        logging("C: " * string(cost), true, false)
+        logging("cost: " * string(cost), true, false)
+        logging("parent: " * string(parent), true, false)
         logging("====================================================", true, false)
     end
 end
 
 # Main algorithm
-function finalize_cost(v, j, Iv, edepv, best, sigma, lvrv)
+function finalize_cost(v, j, Iv, Pv, edepv, best, sigma, parent, lvrv)
     # println("Length of Iv: ", length(Iv))
     while (length(Iv[v]) > 0 && first(Iv[v])[1] <= j)
         I = first(Iv[v]) # I = (l,r,c,k)
+        L = first(Pv[v])
         l_prime = min(I[2], j)
         for i in I[1]:l_prime
             f = edepv[v][i]
             best[f] = I[3]
             sigma[f] = I[4]
+            parent[f] = L
         end
         if (l_prime == I[2])
             popfirst!(Iv[v])
+            popfirst!(Pv[v])
         else
             I[1] = j + 1
         end
@@ -119,11 +123,13 @@ function optimal_edge_walks_counter(n, alpha, beta, earr, edep, s, verbose)
     logging("edepv_index: " * string(edepv_index), verbose, false)
     logging("====================================================", verbose, false)
     Iv = [LinkedList{Vector{Int64}}() for i = 1:n]
+    Pv = [LinkedList{Vector{Int64}}() for i = 1:n]
     lvrv = [[1, 0] for i = 1:n]
     best::Array{Union{Int64,Missing}} = [missing for e = 1:length(earr)]
     sigma = [0 for e = 1:length(earr)]
+    parent = [[] for e = 1:length(earr)]
     cost::Array{Union{Int64,Missing}} = [missing for e = 1:length(earr)]
-    print_state([], 0, 0, 0, 0, 0, Iv, lvrv, best, sigma, cost, verbose)
+    print_state([], 0, 0, 0, 0, 0, Iv, lvrv, best, sigma, cost, parent, verbose)
     c::Int64 = 0
     for ei in 1:lastindex(earr)
         e = earr[ei]
@@ -134,7 +140,7 @@ function optimal_edge_walks_counter(n, alpha, beta, earr, edep, s, verbose)
         i = edepv_index[ei]
         if (i >= lvrv[u][1])
             #         println("    Enter if line 8")
-            finalize_cost(u, i, Iv, edepv, best, sigma, lvrv)
+            finalize_cost(u, i, Iv, Pv, edepv, best, sigma, parent, lvrv)
         end
         if (u == s || !ismissing(best[ei]))
             #         println("    Enter if of line 9")
@@ -166,7 +172,7 @@ function optimal_edge_walks_counter(n, alpha, beta, earr, edep, s, verbose)
             #         println("        l: ", l)
             r::Int64 = find_r(earr, edepv[v], max(1, lvrv[v][2]), a, beta[v])
             #         println("        r: ", r)
-            finalize_cost(v, l - 1, Iv, edepv, best, sigma, lvrv)
+            finalize_cost(v, l - 1, Iv, Pv, edepv, best, sigma, parent, lvrv)
             lc = max(l, lvrv[v][2] + 1)
             while (length(Iv[v]) > 0 && lessthan(c, last(Iv[v])[3]))
                 lc = last(Iv[v])[1]
@@ -174,19 +180,22 @@ function optimal_edge_walks_counter(n, alpha, beta, earr, edep, s, verbose)
             end
             if (length(Iv[v]) > 0 && equal(c, last(Iv[v])[3]))
                 last(Iv[v])[4] = last(Iv[v])[4] + sigma[ei]
+                push!(last(Pv[v]), ei)
             end
             if (lc <= r)
                 push!(Iv[v], [lc, r, c, sigma[ei]])
+                push!(Pv[v], [ei])
             end
             lvrv[v][2] = r
             if (verbose)
-                print_state(e, i, a, l, r, lc, Iv, lvrv, best, sigma, cost, verbose)
+                print_state(e, i, a, l, r, lc, Iv, lvrv, best, sigma, cost, parent, verbose)
             end
         end
     end
     logging("====================================================", true, false)
     logging("sigma: " * string(sigma), true, false)
     logging("cost: " * string(cost), true, false)
+    logging("parent: " * string(parent), true, false)
     logging("====================================================", true, false)
     return sigma, cost
 end
