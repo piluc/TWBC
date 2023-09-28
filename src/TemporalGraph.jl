@@ -18,8 +18,8 @@ function read_patg(fn::String, sep::String, verbose::Bool)
     for v in 1:n
         l::String = readline(f)
         sl::Array{String} = split(l, sep)
+        alpha[v] = parse(Int64, sl[1])
         if (length(sl) > 1)
-            alpha[v] = parse(Int64, sl[1])
             beta[v] = parse(Int64, sl[2])
         end
     end
