@@ -186,11 +186,6 @@ function optimal_edge_walks_counter(n, alpha, beta, earr, edep, s, verbose)
     return sigma, cost
 end
 
-function optimal_edge_walks_counter(fn::String, s::Int64, verbose::Bool)
-    n, alpha, beta, earr, edep = read_patg(fn, ",", verbose)
-    optimal_edge_walks_counter(n, alpha, beta, earr, edep, s, false)
-end
-
 # Counting number of optimal walks
 # function target_cost(e, c)
 #     return e[3]+e[4] - c 
@@ -200,9 +195,7 @@ function target_cost(e, c)
     return c
 end
 
-function optimal_walks_counter(fn::String, s::Int64, verbose::Bool)
-    n, _, _, earr, _ = read_patg(fn, ",", true)
-    sigma, cost = optimal_edge_walks_counter(fn, s, false)
+function sharp_values(n, earr, sigma, cost, verbose::Bool)
     optimal_value = fill(typemax(Int64), n)
     for ei in 1:lastindex(earr)
         if (!ismissing(cost[ei]))
@@ -217,17 +210,53 @@ function optimal_walks_counter(fn::String, s::Int64, verbose::Bool)
         logging("optimal_value: " * string(optimal_value), true, false)
         logging("====================================================", true, false)
     end
-    n_optimal_walks = fill(0, length(earr))
+    sharp = fill(0, length(earr))
     for ei in 1:lastindex(earr)
         if (!ismissing(cost[ei]))
             c = target_cost(earr[ei], cost[ei])
             if (c == optimal_value[earr[ei][2]])
-                n_optimal_walks[ei] = sigma[ei]
+                sharp[ei] = sigma[ei]
             end
         end
     end
     logging("====================================================", true, false)
-    logging("n_optimal_walks: " * string(n_optimal_walks), true, false)
+    logging("sharp: " * string(sharp), true, false)
     logging("====================================================", true, false)
-    return n_optimal_walks
+    return sharp
+end
+
+function sigma_node(n, earr, sharp)
+    sigma = fill(0, n)
+    for ei in 1:lastindex(earr)
+        v = earr[ei][2]
+        sigma[v] = sigma[v] + sharp[ei]
+    end
+    logging("====================================================", true, false)
+    logging("sigma_v: " * string(sigma), true, false)
+    logging("====================================================", true, false)
+    return sigma
+end
+
+function init_b(earr, sharp, sigma_v)
+    b = zeros(length(earr))
+    for ei in 1:lastindex(earr)
+        v = earr[ei][2]
+        b[ei] = sharp[ei] / sigma_v[v]
+    end
+    logging("====================================================", true, false)
+    logging("b: " * string(b), true, false)
+    logging("====================================================", true, false)
+    return b
+end
+
+function temporal_walk_betweenness_s(n, alpha, beta, earr, edep, s, verbose::Bool)
+    sigma_e, cost_e = optimal_edge_walks_counter(n, alpha, beta, earr, edep, 1, false)
+    sharp = sharp_values(n, earr, sigma_e, cost_e, verbose)
+    sigma_v = sigma_node(n, earr, sharp)
+    b = init_b(earr, sharp, sigma_v)
+end
+
+function temporal_walk_betweenness(fn::String, verbose::Bool)
+    n, alpha, beta, earr, edep = read_patg(fn, ",", verbose)
+    temporal_walk_betweenness_s(n, alpha, beta, earr, edep, 1, false)
 end
