@@ -214,7 +214,7 @@ function optimal_walks_counter(fn::String, s::Int64, verbose::Bool)
     end
     if (verbose)
         logging("====================================================", true, false)
-        logging(string(optimal_value), true, false)
+        logging("optimal_value: " * string(optimal_value), true, false)
         logging("====================================================", true, false)
     end
     n_optimal_walks = fill(0, length(earr))
@@ -227,7 +227,7 @@ function optimal_walks_counter(fn::String, s::Int64, verbose::Bool)
         end
     end
     logging("====================================================", true, false)
-    logging(string(n_optimal_walks), true, false)
+    logging("n_optimal_walks: " * string(n_optimal_walks), true, false)
     logging("====================================================", true, false)
     return n_optimal_walks
 end
