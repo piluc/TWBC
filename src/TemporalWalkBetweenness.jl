@@ -139,39 +139,25 @@ function optimal_edge_walks_counter(n, alpha, beta, earr, edep, s, verbose)
         lambda = e[4]
         i = edepv_index[ei]
         if (i >= lvrv[u][1])
-            #         println("    Enter if line 8")
             finalize_cost(u, i, Iv, Pv, edepv, best, sigma, parent, lvrv)
         end
         if (u == s || !ismissing(best[ei]))
-            #         println("    Enter if of line 9")
             if (u == s)
-                #             println("        Enter if of line 10")
                 if (ismissing(best[ei]) || lessthan(gamma(e), oplus(best[ei], gamma(e))))
-                    #                 println("            Enter if of line 11")
                     c = gamma(e)
                     sigma[ei] = 1
-                    #                 println("            c: ", c)
-                    #                 println("            sigma: ", sigma)
                 end
                 if (!ismissing(best[ei]) && equal(gamma(e), oplus(best[ei], gamma(e))))
-                    #                 println("            Enter if of line 12")
                     c = gamma(e)
                     sigma[ei] = sigma[ei] + 1
-                    #                 println("            c: ", c)
-                    #                 println("            sigma: ", sigma)
                 end
             else
-                #             println("            Enter else of line 13")
                 c = oplus(best[ei], gamma(e))
-                #             println("            c: ", c)
             end
             cost[ei] = c
             a::Int64 = tau + lambda
-            #         println("        a: ", a)
             l::Int64 = find_l(earr, edepv[v], lvrv[v][1], a, alpha[v])
-            #         println("        l: ", l)
             r::Int64 = find_r(earr, edepv[v], max(1, lvrv[v][2]), a, beta[v])
-            #         println("        r: ", r)
             finalize_cost(v, l - 1, Iv, Pv, edepv, best, sigma, parent, lvrv)
             lc = max(l, lvrv[v][2] + 1)
             while (length(Iv[v]) > 0 && lessthan(c, last(Iv[v])[3]))
@@ -226,15 +212,22 @@ function optimal_walks_counter(fn::String, s::Int64, verbose::Bool)
             end
         end
     end
-    println(optimal_value)
-    n_walks = fill(0, length(earr))
+    if (verbose)
+        logging("====================================================", true, false)
+        logging(string(optimal_value), true, false)
+        logging("====================================================", true, false)
+    end
+    n_optimal_walks = fill(0, length(earr))
     for ei in 1:lastindex(earr)
         if (!ismissing(cost[ei]))
             c = target_cost(earr[ei], cost[ei])
             if (c == optimal_value[earr[ei][2]])
-                n_walks[ei] = sigma[ei]
+                n_optimal_walks[ei] = sigma[ei]
             end
         end
     end
-    return n_walks
+    logging("====================================================", true, false)
+    logging(string(n_optimal_walks), true, false)
+    logging("====================================================", true, false)
+    return n_optimal_walks
 end
