@@ -116,7 +116,7 @@ function finalize_cost(v, j, Iv, Pv, edepv, best, sigma, parent, lvrv)
     lvrv[v][1] = j + 1
 end
 
-function optimal_edge_walks_counter(n, alpha, beta, earr, edep, s, verbose)
+function optimal_walks_counter(n, alpha, beta, earr, edep, s, verbose)
     edepv, edepv_index = distribute_edep(n, earr, edep)
     logging("====================================================", verbose, false)
     logging("edepv: " * string(edepv), verbose, false)
@@ -179,11 +179,12 @@ function optimal_edge_walks_counter(n, alpha, beta, earr, edep, s, verbose)
         end
     end
     logging("====================================================", true, false)
+    logging("s: " * string(s), true, false)
     logging("sigma: " * string(sigma), true, false)
     logging("cost: " * string(cost), true, false)
     logging("parent: " * string(parent), true, false)
     logging("====================================================", true, false)
-    return sigma, cost
+    return sigma, cost, parent
 end
 
 # Counting number of optimal walks
@@ -241,7 +242,31 @@ function init_b(earr, sharp, sigma_v)
     b = zeros(length(earr))
     for ei in 1:lastindex(earr)
         v = earr[ei][2]
-        b[ei] = sharp[ei] / sigma_v[v]
+        if (sigma_v[v] > 0)
+            b[ei] = sharp[ei] / sigma_v[v]
+        end
+    end
+    logging("====================================================", true, false)
+    logging("b (initial values): " * string(b), true, false)
+    logging("====================================================", true, false)
+    return b
+end
+
+function temporal_walk_betweenness_s(n, alpha, beta, earr, edep, s, verbose::Bool)
+    sigma_e, cost_e, parent_e = optimal_walks_counter(n, alpha, beta, earr, edep, s, false)
+    sharp = sharp_values(n, earr, sigma_e, cost_e, verbose)
+    sigma_v = sigma_node(n, earr, sharp)
+    b = init_b(earr, sharp, sigma_v)
+    for ei in lastindex(earr):-1:1
+        if (b[ei] > 0 && length(parent_e[ei]) > 0)
+            sum_sigma = 0
+            for p in parent_e[ei]
+                sum_sigma = sum_sigma + sigma_e[p]
+            end
+            for p in parent_e[ei]
+                b[p] = b[p] + b[ei] * sigma_e[p] / sum_sigma
+            end
+        end
     end
     logging("====================================================", true, false)
     logging("b: " * string(b), true, false)
@@ -249,14 +274,14 @@ function init_b(earr, sharp, sigma_v)
     return b
 end
 
-function temporal_walk_betweenness_s(n, alpha, beta, earr, edep, s, verbose::Bool)
-    sigma_e, cost_e = optimal_edge_walks_counter(n, alpha, beta, earr, edep, 1, false)
-    sharp = sharp_values(n, earr, sigma_e, cost_e, verbose)
-    sigma_v = sigma_node(n, earr, sharp)
-    b = init_b(earr, sharp, sigma_v)
-end
-
 function temporal_walk_betweenness(fn::String, verbose::Bool)
     n, alpha, beta, earr, edep = read_patg(fn, ",", verbose)
-    temporal_walk_betweenness_s(n, alpha, beta, earr, edep, 1, false)
+    b = zeros(length(earr))
+    for s in 1:n
+        b = b .+ temporal_walk_betweenness_s(n, alpha, beta, earr, edep, s, false)
+    end
+    logging("====================================================", true, false)
+    logging("b: " * string(b), true, false)
+    logging("====================================================", true, false)
+    return b
 end
