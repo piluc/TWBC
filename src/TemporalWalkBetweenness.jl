@@ -145,7 +145,7 @@ function optimal_walks_counter(n, alpha, beta, earr, edep, s, verbose)
                 if (ismissing(best[ei]) || lessthan(gamma(e), oplus(best[ei], gamma(e))))
                     c = gamma(e)
                     sigma[ei] = 1
-                    parent[e] = []
+                    parent[ei] = []
                 end
                 if (!ismissing(best[ei]) && equal(gamma(e), oplus(best[ei], gamma(e))))
                     c = gamma(e)
@@ -275,23 +275,35 @@ function temporal_walk_betweenness_s(n, alpha, beta, earr, edep, s, verbose::Boo
     logging("====================================================", true, false)
     logging("b_e: " * string(b_e), true, false)
     logging("====================================================", true, false)
-    return b_e
+    return b_e, sigma_v
 end
 
 function temporal_walk_betweenness(fn::String, verbose::Bool)
     n, alpha, beta, earr, edep = read_patg(fn, ",", true)
     b_e = zeros(length(earr))
+    b_v = zeros(n)
     for s in 1:n
-        b_e = b_e .+ temporal_walk_betweenness_s(n, alpha, beta, earr, edep, s, false)
+        b_e_s, sigma_v_s = temporal_walk_betweenness_s(n, alpha, beta, earr, edep, s, false)
+        b_e = b_e .+ b_e_s
+        # for v in 1:n
+        #     if (sigma_v_s[v] > 0)
+        #         b_v[v] = b_v[v] - 1
+        #     end
+        # end
     end
     logging("====================================================", true, false)
     logging("b_e: " * string(b_e), true, false)
     logging("====================================================", true, false)
-    b_v = zeros(n)
+    # b_v = zeros(n)
     for ei in 1:lastindex(earr)
         v = earr[ei][2]
         b_v[v] = b_v[v] + b_e[ei]
     end
+    # for v in 1:n
+    #     if (sigma_v[v] > 0)
+    #         b_v[v] = b_v[v] - sigma_v[v] + 1
+    #     end
+    # end
     logging("====================================================", true, false)
     logging("b_v: " * string(b_v), true, false)
     logging("====================================================", true, false)
