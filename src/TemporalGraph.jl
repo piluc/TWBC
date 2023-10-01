@@ -18,10 +18,12 @@ function read_patg(fn::String, sep::String, verbose::Bool)
     for v in 1:n
         l::String = readline(f)
         sl::Array{String} = split(l, sep)
+        @assert length(sl) >= 1 "Bad line format: " * l
         alpha[v] = parse(Int64, sl[1])
         if (length(sl) > 1)
             beta[v] = parse(Int64, sl[2])
         end
+        @assert beta[v] >= alpha[v] "Beta value smaller than alpha value: " * v
     end
     earr::Vector{Array{Int64}} = []
     while (!eof(f))
