@@ -38,12 +38,18 @@ function lessthan(c1, c2)
 end
 
 # Auxiliary functions
-function distribute_edep(n, earr, edep)
+function distribute_edep(n, earr, edep, verbose)
     edepv = [[] for i = 1:n]
     edepv_index = zeros(Int64, length(earr))
     for i in 1:lastindex(edep)
         push!(edepv[earr[edep[i]][1]], edep[i])
         edepv_index[edep[i]] = length(edepv[earr[edep[i]][1]])
+    end
+    if (verbose)
+        logging("====================================================", true, false)
+        logging("edepv: " * string(edepv), true, false)
+        logging("edepv_index: " * string(edepv_index), true, false)
+        logging("====================================================", true, false)
     end
     return edepv, edepv_index
 end
@@ -77,6 +83,7 @@ end
 
 function print_state(e, i, a, l, r, lc, edepv, edepv_index, Iv, Pv, lvrv, best, sigma, cost, parent, verbose)
     if (verbose)
+        logging("====================================================", true, false)
         logging("e: " * string(e), true, false)
         logging("i: " * string(i), true, false)
         logging("a: " * string(a), true, false)
@@ -119,8 +126,7 @@ function finalize_cost(v, j, Iv, Pv, edepv, best, sigma, parent, lvrv)
     lvrv[v][1] = j + 1
 end
 
-function optimal_walks_counter(n, alpha, beta, earr, edep, s, verbose)
-    edepv, edepv_index = distribute_edep(n, earr, edep)
+function optimal_walks_counter(n, alpha, beta, earr, edepv, edepv_index, s, verbose)
     Iv = [LinkedList{Vector{Int64}}() for i = 1:n]
     Pv = [LinkedList{Vector{Int64}}() for i = 1:n]
     lvrv = [[1, 0] for i = 1:n]
@@ -180,12 +186,14 @@ function optimal_walks_counter(n, alpha, beta, earr, edep, s, verbose)
             end
         end
     end
-    logging("====================================================", true, false)
-    logging("s: " * string(s), true, false)
-    logging("sigma: " * string(sigma), true, false)
-    logging("cost: " * string(cost), true, false)
-    logging("parent: " * string(parent), true, false)
-    logging("====================================================", true, false)
+    if (verbose)
+        logging("====================================================", true, false)
+        logging("s: " * string(s), true, false)
+        logging("sigma: " * string(sigma), true, false)
+        logging("cost: " * string(cost), true, false)
+        logging("parent: " * string(parent), true, false)
+        logging("====================================================", true, false)
+    end
     return sigma, cost, parent
 end
 
@@ -198,49 +206,54 @@ function target_cost(e, c)
     return c
 end
 
-function sharp_values(n, earr, sigma, cost, verbose::Bool)
-    optimal_value = fill(typemax(Int64), n)
+function sharp_values(n, earr, s, sigma, cost, verbose::Bool)
+    optimal_value_v = fill(typemax(Int64), n)
+    optimal_value_v[s] = 0
     for ei in 1:lastindex(earr)
         if (!ismissing(cost[ei]))
             c = target_cost(earr[ei], cost[ei])
-            if (optimal_value[earr[ei][2]] > c)
-                optimal_value[earr[ei][2]] = c
+            if (optimal_value_v[earr[ei][2]] > c)
+                optimal_value_v[earr[ei][2]] = c
             end
         end
     end
     if (verbose)
         logging("====================================================", true, false)
-        logging("optimal_value: " * string(optimal_value), true, false)
+        logging("optimal_value_v: " * string(optimal_value_v), true, false)
         logging("====================================================", true, false)
     end
-    sharp = fill(0, length(earr))
+    sharp_e = fill(0, length(earr))
     for ei in 1:lastindex(earr)
         if (!ismissing(cost[ei]))
             c = target_cost(earr[ei], cost[ei])
-            if (optimal_value[earr[ei][2]] > 0 && c == optimal_value[earr[ei][2]])
-                sharp[ei] = sigma[ei]
+            if (optimal_value_v[earr[ei][2]] > 0 && c == optimal_value_v[earr[ei][2]])
+                sharp_e[ei] = sigma[ei]
             end
         end
     end
-    logging("====================================================", true, false)
-    logging("sharp: " * string(sharp), true, false)
-    logging("====================================================", true, false)
-    return sharp
+    if (verbose)
+        logging("====================================================", true, false)
+        logging("sharp_e: " * string(sharp_e), true, false)
+        logging("====================================================", true, false)
+    end
+    return sharp_e
 end
 
-function sigma_node(n, earr, sharp)
-    sigma = fill(0, n)
+function sigma_node(n, earr, sharp_e, verbose)
+    sigma_v = fill(0, n)
     for ei in 1:lastindex(earr)
         v = earr[ei][2]
-        sigma[v] = sigma[v] + sharp[ei]
+        sigma_v[v] = sigma_v[v] + sharp_e[ei]
     end
-    logging("====================================================", true, false)
-    logging("sigma_v: " * string(sigma), true, false)
-    logging("====================================================", true, false)
-    return sigma
+    if (verbose)
+        logging("====================================================", true, false)
+        logging("sigma_v: " * string(sigma_v), true, false)
+        logging("====================================================", true, false)
+    end
+    return sigma_v
 end
 
-function init_b(earr, sharp, sigma_v, verbose::Bool)
+function init_b(earr, sharp, sigma_v, verbose)
     b = zeros(length(earr))
     for ei in 1:lastindex(earr)
         v = earr[ei][2]
@@ -256,34 +269,38 @@ function init_b(earr, sharp, sigma_v, verbose::Bool)
     return b
 end
 
-function temporal_walk_betweenness_s(n, alpha, beta, earr, edep, s, verbose::Bool)
-    sigma_e, cost_e, parent_e = optimal_walks_counter(n, alpha, beta, earr, edep, s, false)
-    sharp = sharp_values(n, earr, sigma_e, cost_e, verbose)
-    sigma_v = sigma_node(n, earr, sharp)
-    b_e = init_b(earr, sharp, sigma_v, true)
+function temporal_walk_betweenness_s(n, alpha, beta, earr, edepv, edepv_index, s, verbose)
+    sigma_e, cost_e, parent_e = optimal_walks_counter(n, alpha, beta, earr, edepv, edepv_index, s, false)
+    sharp_e = sharp_values(n, earr, s, sigma_e, cost_e, verbose)
+    sigma_v = sigma_node(n, earr, sharp_e, verbose)
+    b_e = init_b(earr, sharp_e, sigma_v, false)
     for ei in lastindex(earr):-1:1
         if (b_e[ei] > 0 && length(parent_e[ei]) > 0)
-            sum_sigma = 0
+            # sum_sigma = 0
+            # for p in parent_e[ei]
+            #     sum_sigma = sum_sigma + sigma_e[p]
+            # end
             for p in parent_e[ei]
-                sum_sigma = sum_sigma + sigma_e[p]
-            end
-            for p in parent_e[ei]
-                b_e[p] = b_e[p] + b_e[ei] * sigma_e[p] / sum_sigma
+                # b_e[p] = b_e[p] + b_e[ei] * sigma_e[p] / sum_sigma
+                b_e[p] = b_e[p] + b_e[ei] * sigma_e[p] / sigma_e[ei]
             end
         end
     end
-    logging("====================================================", true, false)
-    logging("b_e: " * string(b_e), true, false)
-    logging("====================================================", true, false)
+    if (verbose)
+        logging("====================================================", true, false)
+        logging("b_e: " * string(b_e), true, false)
+        logging("====================================================", true, false)
+    end
     return b_e, sigma_v
 end
 
-function temporal_walk_betweenness(fn::String, verbose::Bool)
+function temporal_walk_betweenness(fn::String, verbose)
     n, alpha, beta, earr, edep = read_patg(fn, ",", true)
+    edepv, edepv_index = distribute_edep(n, earr, edep, verbose)
     b_e = zeros(length(earr))
     b_v = zeros(n)
     for s in 1:n
-        b_e_s, sigma_v_s = temporal_walk_betweenness_s(n, alpha, beta, earr, edep, s, false)
+        b_e_s, sigma_v_s = temporal_walk_betweenness_s(n, alpha, beta, earr, edepv, edepv_index, s, false)
         b_e = b_e .+ b_e_s
         # for v in 1:n
         #     if (sigma_v_s[v] > 0)
@@ -291,12 +308,14 @@ function temporal_walk_betweenness(fn::String, verbose::Bool)
         #     end
         # end
     end
-    logging("====================================================", true, false)
-    logging("b_e: " * string(b_e), true, false)
-    logging("====================================================", true, false)
+    if (verbose)
+        logging("====================================================", true, false)
+        logging("b_e: " * string(b_e), true, false)
+        logging("====================================================", true, false)
+    end
     # b_v = zeros(n)
     for ei in 1:lastindex(earr)
-        v = earr[ei][2]
+        v = earr[ei][1]
         b_v[v] = b_v[v] + b_e[ei]
     end
     # for v in 1:n
