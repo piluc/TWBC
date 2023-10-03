@@ -103,7 +103,7 @@ function print_state(e, i, a, l, r, lc, edepv, edepv_index, Iv, Pv, lvrv, best, 
     end
 end
 
-# Main algorithm
+# Counting number of optimal walks ending with edge
 function finalize_cost(v, j, Iv, Pv, edepv, best, sigma, parent, lvrv)
     # println("Length of Iv: ", length(Iv))
     while (length(Iv[v]) > 0 && first(Iv[v])[1] <= j)
@@ -206,9 +206,17 @@ function target_cost(e, c)
     return c
 end
 
+function min_cost()
+    return 0
+end
+
+function max_cost()
+    return typemax(Int64)
+end
+
 function sharp_values(n, earr, s, sigma, cost, verbose::Bool)
-    optimal_value_v = fill(typemax(Int64), n)
-    optimal_value_v[s] = 0
+    optimal_value_v = fill(max_cost(), n)
+    optimal_value_v[s] = min_cost()
     for ei in 1:lastindex(earr)
         if (!ismissing(cost[ei]))
             c = target_cost(earr[ei], cost[ei])
@@ -239,8 +247,9 @@ function sharp_values(n, earr, s, sigma, cost, verbose::Bool)
     return sharp_e
 end
 
-function sigma_node(n, earr, sharp_e, verbose)
+function sigma_node(n, earr, s, sharp_e, verbose)
     sigma_v = fill(0, n)
+    sigma_v[s] = 1
     for ei in 1:lastindex(earr)
         v = earr[ei][2]
         sigma_v[v] = sigma_v[v] + sharp_e[ei]
@@ -270,22 +279,21 @@ function init_b(earr, sharp, sigma_v, verbose)
 end
 
 function temporal_walk_betweenness_s(n, alpha, beta, earr, edepv, edepv_index, s, verbose)
+    # start_time = time()
     sigma_e, cost_e, parent_e = optimal_walks_counter(n, alpha, beta, earr, edepv, edepv_index, s, false)
+    # println(s, " (forward): ", time() - start_time)
     sharp_e = sharp_values(n, earr, s, sigma_e, cost_e, verbose)
-    sigma_v = sigma_node(n, earr, sharp_e, verbose)
+    sigma_v = sigma_node(n, earr, s, sharp_e, verbose)
+    # start_time = time()
     b_e = init_b(earr, sharp_e, sigma_v, false)
     for ei in lastindex(earr):-1:1
         if (b_e[ei] > 0 && length(parent_e[ei]) > 0)
-            # sum_sigma = 0
-            # for p in parent_e[ei]
-            #     sum_sigma = sum_sigma + sigma_e[p]
-            # end
             for p in parent_e[ei]
-                # b_e[p] = b_e[p] + b_e[ei] * sigma_e[p] / sum_sigma
                 b_e[p] = b_e[p] + b_e[ei] * sigma_e[p] / sigma_e[ei]
             end
         end
     end
+    # println(s, " (backward): ", time() - start_time)
     if (verbose)
         logging("====================================================", true, false)
         logging("b_e: " * string(b_e), true, false)
@@ -294,37 +302,33 @@ function temporal_walk_betweenness_s(n, alpha, beta, earr, edepv, edepv_index, s
     return b_e, sigma_v
 end
 
-function temporal_walk_betweenness(fn::String, verbose)
-    n, alpha, beta, earr, edep = read_patg(fn, ",", true)
+function temporal_walk_betweenness(fn::String, sep, verbose)
+    n, alpha, beta, earr, edep = read_patg(fn, sep, false)
     edepv, edepv_index = distribute_edep(n, earr, edep, verbose)
     b_e = zeros(length(earr))
     b_v = zeros(n)
     for s in 1:n
         b_e_s, sigma_v_s = temporal_walk_betweenness_s(n, alpha, beta, earr, edepv, edepv_index, s, false)
         b_e = b_e .+ b_e_s
-        # for v in 1:n
-        #     if (sigma_v_s[v] > 0)
-        #         b_v[v] = b_v[v] - 1
-        #     end
-        # end
+        for v in 1:n
+            if (s != v && sigma_v_s[v] > 0)
+                b_v[v] = b_v[v] - 1
+            end
+        end
     end
     if (verbose)
         logging("====================================================", true, false)
         logging("b_e: " * string(b_e), true, false)
         logging("====================================================", true, false)
     end
-    # b_v = zeros(n)
     for ei in 1:lastindex(earr)
-        v = earr[ei][1]
+        v = earr[ei][2]
         b_v[v] = b_v[v] + b_e[ei]
     end
-    # for v in 1:n
-    #     if (sigma_v[v] > 0)
-    #         b_v[v] = b_v[v] - sigma_v[v] + 1
-    #     end
-    # end
-    logging("====================================================", true, false)
-    logging("b_v: " * string(b_v), true, false)
-    logging("====================================================", true, false)
+    if (verbose)
+        logging("====================================================", true, false)
+        logging("b_v: " * string(b_v), true, false)
+        logging("====================================================", true, false)
+    end
     return b_v
 end
