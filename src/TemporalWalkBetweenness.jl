@@ -66,18 +66,20 @@ function find_l(earr, edepv, lv, a, alphav)
 end
 
 function find_r(earr, edepv, rv, a, betav)
-    start = rv
-    while (rv <= length(edepv))
-        if (earr[edepv[rv]][3] > a + betav)
+    cur = max(1, rv)
+    one_found = false
+    while (cur <= length(edepv))
+        if (earr[edepv[rv]][3] - a > betav)
             break
         else
-            rv = rv + 1
+            one_found = true
+            cur = cur + 1
         end
     end
-    if (rv == start)
+    if (!one_found)
         return rv
     else
-        return rv - 1
+        return cur - 1
     end
 end
 
@@ -164,7 +166,7 @@ function optimal_walks_counter(n, alpha, beta, earr, edepv, edepv_index, s, verb
             cost[ei] = c
             a::Int64 = tau + lambda
             l::Int64 = find_l(earr, edepv[v], lvrv[v][1], a, alpha[v])
-            r::Int64 = find_r(earr, edepv[v], max(1, lvrv[v][2]), a, beta[v])
+            r::Int64 = find_r(earr, edepv[v], lvrv[v][2], a, beta[v])
             finalize_cost(v, l - 1, Iv, Pv, edepv, best, sigma, parent, lvrv)
             lc = max(l, lvrv[v][2] + 1)
             while (length(Iv[v]) > 0 && lessthan(c, last(Iv[v])[3]))
