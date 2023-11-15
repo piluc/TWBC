@@ -69,7 +69,7 @@ function find_r(earr, edepv, rv, a, betav)
     cur = max(1, rv)
     one_found = false
     while (cur <= length(edepv))
-        if (earr[edepv[rv]][3] - a > betav)
+        if (earr[edepv[cur]][3] - a > betav)
             break
         else
             one_found = true
@@ -269,7 +269,7 @@ function init_b(earr, sharp, sigma_v, verbose)
     for ei in 1:lastindex(earr)
         v = earr[ei][2]
         if (sigma_v[v] > 0)
-            b[ei] = sharp[ei] / sigma_v[v]
+            b[ei] += sharp[ei] / sigma_v[v]
         end
     end
     if (verbose)
