@@ -158,7 +158,7 @@ function optimal_walks_counter(n, alpha, beta, earr, edepv, edepv_index, s, verb
                 if (!ismissing(best[ei]) && equal(gamma(e), oplus(best[ei], gamma(e))))
                     c = gamma(e)
                     sigma[ei] = sigma[ei] + 1
-                    # What to do?
+                    # What to do? Still a problem!
                 end
             else
                 c = oplus(best[ei], gamma(e))
@@ -269,7 +269,7 @@ function init_b(earr, sharp, sigma_v, verbose)
     for ei in 1:lastindex(earr)
         v = earr[ei][2]
         if (sigma_v[v] > 0)
-            b[ei] += sharp[ei] / sigma_v[v]
+            b[ei] = sharp[ei] / sigma_v[v]
         end
     end
     if (verbose)
