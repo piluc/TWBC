@@ -45,7 +45,7 @@ Number of distinct time steps: 5246
 
 ## Computing the non-restless Sh and SFo betweenness
 
-The values of the non-restless Sh betweenness of the hypertext temporal graph can be computed (by using Algorithm 2 of the paper) by executing the following command.
+The values of the non-restless Sh betweenness of the hypertext temporal graph can be computed (by using Algorithm 2 of the paper) as follows.
 
 ```
 b, t = algorithm2("1_01_hypertext.patg", " ", 10);
