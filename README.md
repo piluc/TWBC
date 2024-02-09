@@ -45,7 +45,7 @@ Number of distinct time steps: 5246
 
 ## Computing the non-restless Sh and SFo betweenness
 
-The values of the non-restless Sh betweenness of the hypertext temporal graph can be computed by executing the following command.
+The values of the non-restless Sh betweenness of the hypertext temporal graph can be computed (by using Algorithm 2 of the paper) by executing the following command.
 
 ```
 b, t = algorithm2("1_01_hypertext.patg", " ", 10);
@@ -59,7 +59,7 @@ The values of the temporal shortest betweenness can be saved as follows.
 save_centrality_values("nrshb.txt", b);
 ```
 
-Analogously, the values of the non-restless SFo betweenness of the hypertext temporal graph can be computed and saved by executing the following commands.
+Analogously, the values of the non-restless SFo betweenness of the hypertext temporal graph can be computed (by using Algorithm 1 of the paper) and saved by executing the following commands.
 
 ```
 b, t = algorithm1("1_01_hypertext.patg", " ", 10);
@@ -68,16 +68,16 @@ save_centrality_values("nrsfob.txt", b);
 
 ## Computing the SFo betweenness 
 
-The values of the (restless) SFo betweenness of the hypertext temporal graph with waiting constraint β equal to 600 can be computed and saved by executing the following commands.
+The values of the (restless) SFo betweenness of the hypertext temporal graph with waiting constraint β equal to 600 can be computed (by using Algorithm 3 of the paper) and saved by executing the following commands.
 
 ```
 b, t = algorithm3("1_01_hypertext.patg", " ", 10, _β=600);
 save_centrality_values("sfob_600.txt", b);
 ```
 
-## Computing all the other betweennesses
+## Computing all betweennesses
 
-All the other betweennesses (still with waiting constraint β equal to 600) can be computed and saved as follows.
+All betweennesses (still with waiting constraint β equal to 600) can be computed (by using Algorithm 4 of the paper) and saved as follows.
 
 ```
 b, t = tfab("1_01_hypertext.patg", " ", 10, β=600);
@@ -88,6 +88,8 @@ b, t = tsb("1_01_hypertext.patg", " ", 10, β=600);
 save_centrality_values("sb_600.txt", Float64.(BigFloat.(b)));
 b, t = tsfab("1_01_hypertext.patg", " ", 10, β=600);
 save_centrality_values("sfab_600.txt", Float64.(BigFloat.(b)));
+b, t = tsfob("1_01_hypertext.patg", " ", 10, β=600);
+save_centrality_values("sfob_600.txt", Float64.(BigFloat.(b)));
 ```
 
 In order to avoid overflow errors, big number data structures are used by the above functions, resulting in significantly higher execution times. If we are sure that the overflow errors do not occur, then we can change the number data structure in the first lines of the file `Algorithm4.jl`.
