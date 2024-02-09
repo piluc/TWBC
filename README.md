@@ -97,4 +97,4 @@ In order to avoid overflow errors, big number data structures are used by the ab
 
 ## Analysing the ranking correlations
 
-The (weighted) Kendall tau correlation of two rankings can be computed by using the [Crawdad library](https://law.di.unimi.it). The top-k intersection index can be easily computed starting form the centrality values saved in the text files. 
+The (weighted) Kendall tau correlation of two rankings can be computed by using the [Crawdad library](https://law.di.unimi.it). The top-k intersection index can be easily computed, starting from the centrality values saved in the text files, by using the `intersection_top_k` function. 
