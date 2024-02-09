@@ -429,4 +429,11 @@ end
     @assert false "Unknown cost"
 end
 
-
+# CORRELATION INDICES
+function intersection_top_k(fn1, fn2, k)
+    a1 = read_centrality_values(fn1)
+    a2 = read_centrality_values(fn2)
+    a1i = sortperm(a1, rev=true)
+    a2i = sortperm(a2, rev=true)
+    return length(intersect(Set(a1i[1:k]), Set(a2i[1:k])))
+end
