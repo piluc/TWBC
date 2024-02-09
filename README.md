@@ -74,6 +74,25 @@ The values of the (restless) SFo betweenness of the hypertext temporal graph wit
 b, t = algorithm3("graphs/1_01_hypertext.patg", " ", 10, _β=600);
 save_centrality_values("sfob_600.txt", b);
 ```
+
+## Computing all the other betweennesses
+
+All the other betweennesses (still with waiting constraint β equal to 600) can be computed and saved as follows.
+
+```
+b, t = tfab("graphs/1_01_hypertext.patg", " ", 10, β=600);
+save_centrality_values("fab_600.txt", Float64.(BigFloat.(b)));
+b, t = tfob("graphs/1_01_hypertext.patg", " ", 10, β=600);
+save_centrality_values("fob_600.txt", Float64.(BigFloat.(b)));
+b, t = tsb("graphs/1_01_hypertext.patg", " ", 10, β=600);
+save_centrality_values("sb_600.txt", Float64.(BigFloat.(b)));
+b, t = tsfab("graphs/1_01_hypertext.patg", " ", 10, β=600);
+save_centrality_values("sfab_600.txt", Float64.(BigFloat.(b)));
+```
+
+In order to avoid overflow errors, big number data structures are used by the above functions, resulting in significantly higher execution times. If we are sure that the overflow errors do not occur, then we can change the number data structure in the first lines of the file `Algorithm4.jl`.
+
+
 ## Analysing the ranking correlations
 
 The (weighted) Kendall tau correlation of two rankings can be computed by using the [https://law.di.unimi.it](Crawdad library). The top-k intersection index can be easily computed starting form the centrality values saved in text files. 
