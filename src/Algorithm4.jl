@@ -1,9 +1,9 @@
-LargeInt = UInt128;
-LargeReal = Float64;
-LargeExact = false;
+# LargeInt = UInt128; LargeReal = Float64; LargeExact = false;
 # LargeInt = BigInt; LargeReal = Float64; LargeExact = false;
 # LargeInt = BigInt; LargeReal = BigFloat; LargeExact = false;
-# LargeInt = BigInt; LargeReal = BigRational; LargeExact = true;
+LargeInt = BigInt;
+LargeReal = BigRational;
+LargeExact = true;
 
 mutable struct I_ITEM_DH
     l::Int64

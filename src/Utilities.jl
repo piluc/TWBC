@@ -149,10 +149,6 @@ function print_patg_stats(tg)
     logging("Number of edges: " * string(length(duv)), true, false)
     logging("Number of temporal edges: " * string(length(tg.earr)), true, false)
     logging("Number of distinct time steps: " * string(length(dt)), true, false)
-    if (αβ)
-        logging("alpha: " * string(tg.α), true, false)
-        logging("beta: " * string(tg.β), true, false)
-    end
     logging("====================================================", true, false)
 end
 

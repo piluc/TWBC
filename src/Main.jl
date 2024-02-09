@@ -1,3 +1,4 @@
+using BigRationals
 using DataStructures
 using Graphs
 
