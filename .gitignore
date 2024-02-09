@@ -26,7 +26,3 @@ Manifest.toml
 # Other files and directories
 .DS_Store
 .gitignore
-scores/
-sea/
-local/
-graphs/txt
