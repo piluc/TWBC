@@ -8,10 +8,10 @@ The file *cannot* include duplicate lines (that is, two identical temporal edges
 
 # How to use the software
 
-Once the repository has been downloaded and extracted, we assume that the `julia` REPL has been started within the directory `TWBC-main` and the following command has been already executed (after having installed all the required packages).
+Once all the Julia files have been downloaded together with, for example, the graph file `1_01_hypertext.patg` into the directory `TWBC`, we assume that the `julia` REPL has been started within this directory and the following command has been already executed (after having installed all the required packages).
 
 ```
-include("src/Main.jl");
+include("Main.jl");
 ```
 
 ## Reading the temporal graph
@@ -19,7 +19,7 @@ include("src/Main.jl");
 The following instruction load the first temporal network of the dataset described in the first experiment of the paper, with no waiting constraint.
 
 ```
-patg = read_patg("graphs/1_01_hypertext.patg", " ", β=typemax(Int64));
+patg = read_patg("1_01_hypertext.patg", " ", β=typemax(Int64));
 ```
 
 The second parameter specifies the string separating the elements of a temporal edge. By default `β` is the maximum integer value, and can be not specified (if the non-restless case is considered).
@@ -48,7 +48,7 @@ Number of distinct time steps: 5246
 The values of the non-restless Sh betweenness of the hypertext temporal graph can be computed by executing the following command.
 
 ```
-b, t = algorithm2("graphs/1_01_hypertext.patg", " ", 10);
+b, t = algorithm2("1_01_hypertext.patg", " ", 10);
 ```
 
 The third parameter specifies after how many processed nodes a message has to be printed on the console (in order to verify the status of the computation). If this parameter is `0`, then no ouptut is produced. The execution of the above command should require less than one second. The values returned are the array of the SH betweenness values and the execution time.
@@ -62,7 +62,7 @@ save_centrality_values("nrshb.txt", b);
 Analogously, the values of the non-restless SFo betweenness of the hypertext temporal graph can be computed and saved by executing the following commands.
 
 ```
-b, t = algorithm1("graphs/1_01_hypertext.patg", " ", 10);
+b, t = algorithm1("1_01_hypertext.patg", " ", 10);
 save_centrality_values("nrsfob.txt", b);
 ```
 
@@ -71,7 +71,7 @@ save_centrality_values("nrsfob.txt", b);
 The values of the (restless) SFo betweenness of the hypertext temporal graph with waiting constraint β equal to 600 can be computed and saved by executing the following commands.
 
 ```
-b, t = algorithm3("graphs/1_01_hypertext.patg", " ", 10, _β=600);
+b, t = algorithm3("1_01_hypertext.patg", " ", 10, _β=600);
 save_centrality_values("sfob_600.txt", b);
 ```
 
@@ -80,13 +80,13 @@ save_centrality_values("sfob_600.txt", b);
 All the other betweennesses (still with waiting constraint β equal to 600) can be computed and saved as follows.
 
 ```
-b, t = tfab("graphs/1_01_hypertext.patg", " ", 10, β=600);
+b, t = tfab("1_01_hypertext.patg", " ", 10, β=600);
 save_centrality_values("fab_600.txt", Float64.(BigFloat.(b)));
-b, t = tfob("graphs/1_01_hypertext.patg", " ", 10, β=600);
+b, t = tfob("1_01_hypertext.patg", " ", 10, β=600);
 save_centrality_values("fob_600.txt", Float64.(BigFloat.(b)));
-b, t = tsb("graphs/1_01_hypertext.patg", " ", 10, β=600);
+b, t = tsb("1_01_hypertext.patg", " ", 10, β=600);
 save_centrality_values("sb_600.txt", Float64.(BigFloat.(b)));
-b, t = tsfab("graphs/1_01_hypertext.patg", " ", 10, β=600);
+b, t = tsfab("1_01_hypertext.patg", " ", 10, β=600);
 save_centrality_values("sfab_600.txt", Float64.(BigFloat.(b)));
 ```
 
