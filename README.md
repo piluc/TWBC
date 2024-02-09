@@ -1,7 +1,5 @@
 # Making Temporal Betweenness Computation Faster and Restless
 
-# Making Temporal Betweenness Computation Faster and Restless
-
 ## Network file format
 
 The temporal network file must contains one line with the number of nodes and one line for each temporal edge. A temporal edge is a tuple `(u,v,t,l)`, where `u` and `v` are two nodes, `t` is a time in which the edge from `u` to `v` is available, and `l` is the postive traversal time of the temporal edge (if `l` is 1 for all temporal edges, then it can be omitted in the file). All networks are considered as directed: hence, if the graph is undirected, then both the temporal edge `(u,v,t,l)` and the temporal edge `(v,u,t,l)` have to be included in the file. Nodes are identified by numbers starting from 1 and times have to be integer values. The three or four elements of a temporal edge can be separated by any string, which can be specified while using the reading function (see below). In the following, we assume that this string is just a space.
