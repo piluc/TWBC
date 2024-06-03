@@ -1,7 +1,7 @@
 # Making Temporal Betweenness Computation Faster and Restless
 
 This software provides an implementation of the temporal betweenness computation proposed in:
- * Making Temporal Betweenness Computation Faster and Restless. Filippo Brunelli, Pierluigi Crescenzi and Laurent Viennot, WWW'2024.
+ * Making Temporal Betweenness Computation Faster and Restless. Filippo Brunelli, Pierluigi Crescenzi and Laurent Viennot, KDD 2024.
 
 It allows the $O(nM)$-time computation of temporal betweenness of all nodes in a temporal network with $n$ nodes and $M$ temporal edges (see the file format bellow). Intuitively, the centrality of a node is measured by the fraction of optimal temporal walks passing through that node. Formally, the temporal betweenness centrality of node $u$ is defined as $b_{u} = \sum_{s,t\in V\setminus\{u\}} \frac{\sigma_{s,u,t}}{\sigma_{s,t}}$ where $\sigma_{s,t}$ denotes the number of optimal temporal walks from $s$ to $t$, while $\sigma_{s,u,t}$ denotes the number of optimal temporal walks from $s$ to $t$ passing through $u$. Several optimality criteria are supported (shortest, fastest, shortest foremost,...). Restricted waiting time is also supported. 
 
@@ -20,7 +20,7 @@ The file *cannot* include duplicate lines (that is, two identical temporal edges
 Once all the Julia files have been downloaded together with, for example, the graph file `1_01_hypertext.patg` into the directory `TWBC`, we assume that the `julia` REPL has been started within this directory and the following command has been already executed (after having installed all the required packages).
 
 ```
-include("Main.jl");
+include("src/Main.jl");
 ```
 
 ## Reading the temporal graph
