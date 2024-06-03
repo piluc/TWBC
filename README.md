@@ -28,7 +28,7 @@ include("src/Main.jl");
 The following instruction load the first temporal network of the dataset described in the first experiment of the paper, with no waiting constraint.
 
 ```
-patg = read_patg("1_01_hypertext.patg", " ", β=typemax(Int64));
+patg = read_patg("graphs/1_01_hypertext.patg", " ", β=typemax(Int64));
 ```
 
 The second parameter specifies the string separating the elements of a temporal edge. By default `β` is the maximum integer value, and can be not specified (if the non-restless case is considered).
@@ -57,7 +57,7 @@ Number of distinct time steps: 5246
 The values of the non-restless Sh betweenness of the hypertext temporal graph can be computed (by using Algorithm 2 of the paper) as follows.
 
 ```
-b, t = algorithm2("1_01_hypertext.patg", " ", 10);
+b, t = nrsh("graphs/1_01_hypertext.patg", " ", 10);
 ```
 
 The third parameter specifies after how many processed nodes a message has to be printed on the console (in order to verify the status of the computation). If this parameter is `0`, then no ouptut is produced. The execution of the above command should require less than one second. The values returned are the array of the SH betweenness values and the execution time.
@@ -71,7 +71,7 @@ save_centrality_values("nrshb.txt", b);
 Analogously, the values of the non-restless SFo betweenness of the hypertext temporal graph can be computed (by using Algorithm 1 of the paper) and saved by executing the following commands.
 
 ```
-b, t = algorithm1("1_01_hypertext.patg", " ", 10);
+b, t = nrsfo("graphs/1_01_hypertext.patg", " ", 10);
 save_centrality_values("nrsfob.txt", b);
 ```
 
@@ -80,7 +80,7 @@ save_centrality_values("nrsfob.txt", b);
 The values of the (restless) SFo betweenness of the hypertext temporal graph with waiting constraint β equal to 600 can be computed (by using Algorithm 3 of the paper) and saved by executing the following commands.
 
 ```
-b, t = algorithm3("1_01_hypertext.patg", " ", 10, _β=600);
+b, t = sfo("graphs/1_01_hypertext.patg", " ", 10, _β=600);
 save_centrality_values("sfob_600.txt", b);
 ```
 
@@ -89,15 +89,15 @@ save_centrality_values("sfob_600.txt", b);
 All betweennesses (still with waiting constraint β equal to 600) can be computed (by using Algorithm 4 of the paper) and saved as follows.
 
 ```
-b, t = tfab("1_01_hypertext.patg", " ", 10, β=600);
+b, t = tfab("graphs/1_01_hypertext.patg", " ", 10, β=600);
 save_centrality_values("fab_600.txt", Float64.(BigFloat.(b)));
-b, t = tfob("1_01_hypertext.patg", " ", 10, β=600);
+b, t = tfob("graphs/1_01_hypertext.patg", " ", 10, β=600);
 save_centrality_values("fob_600.txt", Float64.(BigFloat.(b)));
-b, t = tsb("1_01_hypertext.patg", " ", 10, β=600);
+b, t = tsb("graphs/1_01_hypertext.patg", " ", 10, β=600);
 save_centrality_values("sb_600.txt", Float64.(BigFloat.(b)));
-b, t = tsfab("1_01_hypertext.patg", " ", 10, β=600);
+b, t = tsfab("graphs/1_01_hypertext.patg", " ", 10, β=600);
 save_centrality_values("sfab_600.txt", Float64.(BigFloat.(b)));
-b, t = tsfob("1_01_hypertext.patg", " ", 10, β=600);
+b, t = tsfob("graphs/1_01_hypertext.patg", " ", 10, β=600);
 save_centrality_values("sfob_600.txt", Float64.(BigFloat.(b)));
 ```
 
