@@ -39,7 +39,7 @@ end
     l[v] = j + 1
 end
 
-function algorithm3(fn, sep, verbose_step; _α=0, _β=typemax(Int64))
+function sfo(fn, sep, verbose_step; _α=0, _β=typemax(Int64))
     patg = read_patg(fn, sep, α=_α, β=_β)
     n::Int64 = patg.n
     M::Int64 = length(patg.earr)

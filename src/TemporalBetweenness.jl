@@ -205,12 +205,12 @@ function backward_phase(tg, s, ct, fb5::FWDBWD_5)
     end
 end
 
-function s_temporal_betweenness_5(tg, s, ct, fb5::FWDBWD_5)
+function s_temporal_betweenness(tg, s, ct, fb5::FWDBWD_5)
     forward_phase(tg, s, ct, fb5)
     backward_phase(tg, s, ct, fb5)
 end
 
-function temporal_betweenness_5(fn::String, sep, ct::CS, v_step::Int64; _α=0, _β=typemax(Int64))
+function temporal_betweenness(fn::String, sep, ct::CS, v_step::Int64; _α=0, _β=typemax(Int64))
     tg = read_patg(fn, sep, α=_α, β=_β)
     n::Int64 = tg.n
     M::Int64 = length(tg.earr)
@@ -219,7 +219,7 @@ function temporal_betweenness_5(fn::String, sep, ct::CS, v_step::Int64; _α=0, _
     start_time = time()
     for s in 1:n
         fb5 = FWDBWD_5(tg, ct)
-        s_temporal_betweenness_5(tg, s, ct, fb5)
+        s_temporal_betweenness(tg, s, ct, fb5)
         b_v_s::Array{LargeReal} = zeros(LargeReal, n)
         for ei in 1:M
             v = tg.earr[ei][2]
@@ -244,35 +244,35 @@ end
 
 function tfab(fn::String, sep, v_step; α=0, β=typemax(Int64))
     cs = TFaB_CT()
-    return temporal_betweenness_5(fn, sep, cs, v_step, _α=α, _β=β)
+    return temporal_betweenness(fn, sep, cs, v_step, _α=α, _β=β)
 end
 
 function tfob(fn::String, sep, v_step; α=0, β=typemax(Int64))
     cs = TFoB_CT()
-    return temporal_betweenness_5(fn, sep, cs, v_step, _α=α, _β=β)
+    return temporal_betweenness(fn, sep, cs, v_step, _α=α, _β=β)
 end
 
 function tlab(fn::String, sep, v_step; α=0, β=typemax(Int64))
     cs = TLaB_CT()
-    return temporal_betweenness_5(fn, sep, cs, v_step, _α=α, _β=β)
+    return temporal_betweenness(fn, sep, cs, v_step, _α=α, _β=β)
 end
 
 function tsb(fn::String, sep, v_step; α=0, β=typemax(Int64))
     cs = TSB_CT()
-    return temporal_betweenness_5(fn, sep, cs, v_step, _α=α, _β=β)
+    return temporal_betweenness(fn, sep, cs, v_step, _α=α, _β=β)
 end
 
 function tsfab(fn::String, sep, v_step; α=0, β=typemax(Int64))
     cs = TSFaB_CT()
-    return temporal_betweenness_5(fn, sep, cs, v_step, _α=α, _β=β)
+    return temporal_betweenness(fn, sep, cs, v_step, _α=α, _β=β)
 end
 
 function tsfob(fn::String, sep, v_step; α=0, β=typemax(Int64))
     cs = TSFoB_CT()
-    return temporal_betweenness_5(fn, sep, cs, v_step, _α=α, _β=β)
+    return temporal_betweenness(fn, sep, cs, v_step, _α=α, _β=β)
 end
 
 function tslab(fn::String, sep, v_step; α=0, β=typemax(Int64))
     cs = TSLaB_CT()
-    return temporal_betweenness_5(fn, sep, cs, v_step, _α=α, _β=β)
+    return temporal_betweenness(fn, sep, cs, v_step, _α=α, _β=β)
 end

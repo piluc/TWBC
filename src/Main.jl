@@ -4,7 +4,7 @@ using Graphs
 
 include("Utilities.jl")
 include("BMNRAlgorithm.jl")
-include("Algorithm1.jl")
-include("Algorithm2.jl")
-include("Algorithm3.jl")
-include("Algorithm4.jl")
+include("NRSFO.jl")
+include("NRSH.jl")
+include("SFO.jl")
+include("TemporalBetweenness.jl")

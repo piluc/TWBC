@@ -9,7 +9,7 @@
     l[u] = ie + 1
 end
 
-function algorithm2(fn, sep, verbose_step)
+function nrsh(fn, sep, verbose_step)
     patg = read_patg(fn, sep, α=0, β=typemax(Int64))
     n::Int64 = patg.n
     M::Int64 = length(patg.earr)
