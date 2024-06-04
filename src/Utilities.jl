@@ -437,3 +437,16 @@ function intersection_top_k(fn1, fn2, k)
     a2i = sortperm(a2, rev=true)
     return length(intersect(Set(a1i[1:k]), Set(a2i[1:k])))
 end
+
+# BRANDES' ALGORITHM
+function brandes(fn, sep)
+    tg = read_patg(fn, sep)
+    g = SimpleDiGraph(tg.n)
+    for e in 1:lastindex(tg.earr)
+        add_edge!(g, tg.earr[e][1], tg.earr[e][2])
+    end
+    start_time = time()
+    bc::Array{Float64} = betweenness_centrality(g)
+    finish_total::Float64 = round(time() - start_time; digits=4)
+    return bc, finish_total
+end
