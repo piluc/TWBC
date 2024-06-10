@@ -1,3 +1,5 @@
+using Graphs
+
 # COMMON FUNCTIONS
 function logging(s::String)
     println(s)
@@ -124,14 +126,47 @@ function read_patg(fn::String, sep::String; α=0, β=typemax(Int64) ÷ 2)
         if (length(sl) == 4)
             λ = parse(Int64, sl[4])
         end
+        @assert λ >= 0 "edge with negative travel time!"
         push!(earr, [u, v, τ, λ])
     end
     close(f)
-    sort!(earr, by=e -> e[3] + e[4])
-    edep = sortperm(earr, by=e -> e[3])
+    sort!(earr,by=e -> (e[3] + e[4], -e[4]))
+    topological_sort_zero_delay_edges(n, earr)
+    edep = sortperm(earr, by=e -> e[3]; alg=Base.DEFAULT_STABLE)
     edepv, edepv_index = distribute_edep(n, earr, edep)
     edepv_dep = departures(n, earr, edepv)
     return PATG(n, α_v, β_v, earr, edep, edepv, edepv_index, edepv_dep)
+end
+
+function topological_sort_zero_delay_edges(n, earr)
+    order::Array{Int64} = fill(n, n)
+    i = 1
+    while i <= length(earr)
+        e = earr[i]
+        if e[4] == 0 # zero topological_sort_zero_delay_edges
+            j = i; 
+            while j+1 <= length(earr) && earr[j+1][3] + earr[j+1][4] == e[3] + e[4]
+                @assert earr[j+1][4] == 0 "sorting problem?"
+                j = j + 1
+            end
+            if j > i # topological sort of edges from i to j
+                g = SimpleDiGraph(n)
+                for k in i:j
+                    add_edge!(g, earr[k][1],  earr[k][2])
+                end
+                rank = 1
+                for v in topological_sort_by_dfs(g)
+                    if outdegree(g, v) > 0
+                          order[v] = rank
+                          rank += 1
+                    end
+                end
+                sort!((@view earr[i:j]), by=e -> order[e[1]])
+            end
+            i = j
+        end
+        i = i + 1
+    end
 end
 
 function print_patg_stats(tg)
