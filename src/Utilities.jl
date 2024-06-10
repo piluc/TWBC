@@ -154,14 +154,22 @@ function topological_sort_zero_delay_edges(n, earr)
                 for k in i:j
                     add_edge!(g, earr[k][1],  earr[k][2])
                 end
-                rank = 1
-                for v in topological_sort_by_dfs(g)
-                    if outdegree(g, v) > 0
-                          order[v] = rank
-                          rank += 1
+                if (is_cyclic(g))
+                    # println(stderr, i, " ", j, " ", length(earr))
+                    for k in i:j
+                        println(stderr, earr[k])
                     end
+                    # @assert false "cycle in zero delay edges!"
+                else
+                    rank = 1
+                    for v in topological_sort_by_dfs(g)
+                        if outdegree(g, v) > 0
+                            order[v] = rank
+                            rank += 1
+                        end
+                    end
+                    sort!((@view earr[i:j]), by=e -> order[e[1]])
                 end
-                sort!((@view earr[i:j]), by=e -> order[e[1]])
             end
             i = j
         end
